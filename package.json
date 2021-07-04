@@ -4,7 +4,6 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
     "start_dev": "nodemon -r dotenv/config app.js"
   },
@@ -20,8 +19,7 @@
   "homepage": "https://github.com/Mariosts95/server-side-marios#readme",
   "dependencies": {
     "axios": "^0.21.1",
-    "express": "^4.17.1",
-    "node-fetch": "^2.6.1"
+    "express": "^4.17.1"
   },
   "devDependencies": {
     "dotenv": "^10.0.0"

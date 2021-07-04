@@ -1,9 +1,11 @@
 const router = require('express').Router();
 
-const getTermsApi = require('./getTerms');
-// const termApi = require('./term');
+const TermsApi = require('./terms');
 
-router.use('/getterms', getTermsApi);
-// router.use('/term/:id', termApi);
+router.get('/', (req, res) => {
+  res.send('This is the default api page');
+});
+
+router.use('/terms', TermsApi);
 
 module.exports = router;
