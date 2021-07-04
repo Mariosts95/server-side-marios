@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { getTerms } = require('../../services/terms');
+const { insertTerms } = require('../../database/actions/terms');
 
 router.get('/', (req, res) => {
   res.send('This is the default terms page');
@@ -10,7 +11,18 @@ router.get('/getterms', (req, res) => {
   const { page, size } = req.query;
   getTerms(page, size)
     .then(({ data }) => {
-      res.status(200).send(data._embedded.terms);
+      const terms = data._embedded.terms;
+      // filter data
+      const termsData = terms.map((term) => ({
+        key: term.obo_id,
+        label: term.label,
+        synonyms: term.synonyms ? term.synonyms.join(', ') : '-',
+        obo_id: term.obo_id,
+        term_editor: term.annotation['term editor'] ? term.annotation['term editor'].join(', ') : '-',
+        has_children: term.has_children,
+      }));
+      // insert data in the database
+      insertTerms(termsData);
     })
     .catch((err) => {
       res.status(400);
