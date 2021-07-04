@@ -10,7 +10,7 @@ const TERMS_SCHEMA = mongoose.Schema({
   has_children: { type: Boolean },
 });
 
-// TERMS_SCHEMA.index({ key });
+TERMS_SCHEMA.index({ key: 1 });
 
 // assign the document in the 'terms' collection in db
 const model = mongoose.model('terms', TERMS_SCHEMA);
