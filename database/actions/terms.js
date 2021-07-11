@@ -2,14 +2,16 @@ const TERMS_SCHEMA = require('../models/terms');
 
 const insertTerms = async (terms) => {
   try {
-    //   iterate through the terms array and create a document for each term
-    for (const term of terms) {
-      // using await to avoid conflict in the for loop
-      await TERMS_SCHEMA.create(term);
-    }
+    // send the data to the database
+    TERMS_SCHEMA.insertMany(terms);
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports = { insertTerms };
+// get the estimated document number in the database
+const getCount = async () => {
+  return TERMS_SCHEMA.estimatedDocumentCount();
+};
+
+module.exports = { insertTerms, getCount };

@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 mongoose.connection.close();
 //Set up default mongoose connection
-const mongoDB = 'mongodb://localhost:27017/saeNode';
+const mongoDB = process.env.DATABASE_URI;
 mongoose.connect(mongoDB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
