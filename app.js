@@ -4,7 +4,7 @@ const routes = require('./routes');
 require('./database/connection');
 
 const { insertTerms, getCount } = require('./database/actions/terms');
-const { getTerms } = require('./services/terms');
+const { getTermsFromApi } = require('./services/terms');
 
 app.use(routes);
 
@@ -12,7 +12,7 @@ app.use(routes);
 getCount()
   .then((count) => {
     if (!count) {
-      getTerms()
+      getTermsFromApi()
         .then(({ data }) => {
           const terms = data._embedded.terms;
           // filter data
