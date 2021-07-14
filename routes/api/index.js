@@ -6,6 +6,6 @@ router.get('/', (req, res) => {
   res.send('This is the default api page');
 });
 
-router.use('/terms', TermsApi);
+router.use('/getTerms', TermsApi);
 
 module.exports = router;

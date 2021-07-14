@@ -20,7 +20,7 @@ const getTerms = async (page, size) => {
   page = parseInt(page);
   size = parseInt(size);
   const terms = await TERMS_SCHEMA.find()
-    .skip(page * size)
+    .skip((page - 1) * size)
     .limit(size)
     .exec();
 

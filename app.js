@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const routes = require('./routes');
 require('./database/connection');
 
 const { insertTerms, getCount } = require('./database/actions/terms');
 const { getTermsFromApi } = require('./services/terms');
 
+app.use(cors());
 app.use(routes);
 
 // check if the db has already the terms stored
