@@ -14,19 +14,19 @@ const getCount = async () => {
   return TERMS_SCHEMA.estimatedDocumentCount();
 };
 
-// get the exact count
-const getExactCount = async () => {
-  return TERMS_SCHEMA.countDocuments();
-};
-
 // get terms with pagination
 const getTerms = async (page, size) => {
   // convert the params from string to number
   page = parseInt(page);
   size = parseInt(size);
-  return await TERMS_SCHEMA.find()
+  const terms = await TERMS_SCHEMA.find()
     .skip(page * size)
-    .limit(size);
+    .limit(size)
+    .exec();
+
+  // get the exact count
+  const count = await TERMS_SCHEMA.countDocuments();
+  return { terms, count };
 };
 
-module.exports = { insertTerms, getCount, getTerms, getExactCount };
+module.exports = { insertTerms, getCount, getTerms };
