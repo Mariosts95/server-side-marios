@@ -1,0 +1,29 @@
+{
+  "name": "server-side-marios",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "start_dev": "nodemon -r dotenv/config app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mariosts95/server-side-marios.git"
+  },
+  "author": "Marios Tsioutsis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mariosts95/server-side-marios/issues"
+  },
+  "homepage": "https://github.com/Mariosts95/server-side-marios#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mongoose": "^5.13.2"
+  },
+  "devDependencies": {
+    "dotenv": "^10.0.0"
+  }
+}
