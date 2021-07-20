@@ -10,4 +10,10 @@ const RegisterSchema = joi.object({
   confirmPassword: joi.string().valid(joi.ref('password')).required().trim(),
 });
 
-module.exports = { RegisterSchema };
+// Login validation schema using joi
+const LoginSchema = joi.object({
+  email: joi.string().min(3).required().email().trim(),
+  password: joi.string().min(8).required().trim(),
+});
+
+module.exports = { RegisterSchema, LoginSchema };
