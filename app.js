@@ -6,8 +6,11 @@ require('./database/connection');
 
 const { insertTerms, getCount } = require('./database/actions/terms');
 const { getTermsFromApi } = require('./services/terms');
+const { filterTerms } = require('./helpers/terms');
 
 app.use(cors());
+// use express.json to parse json data from the body
+app.use(express.json());
 app.use(routes);
 
 // check if the db has already the terms stored
@@ -18,14 +21,7 @@ getCount()
         .then(({ data }) => {
           const terms = data._embedded.terms;
           // filter data
-          const termsData = terms.map((term) => ({
-            key: term.obo_id,
-            label: term.label,
-            synonyms: term.synonyms ? term.synonyms.join(', ') : '-',
-            obo_id: term.obo_id,
-            term_editor: term.annotation['term editor'] ? term.annotation['term editor'].join(', ') : '-',
-            has_children: term.has_children,
-          }));
+          const termsData = filterTerms(terms);
           // insert data in the database
           insertTerms(termsData);
         })
