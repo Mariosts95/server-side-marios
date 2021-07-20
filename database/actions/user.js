@@ -27,4 +27,12 @@ const registerUser = async (firstName, lastName, email, password) => {
   return 'User created!';
 };
 
-module.exports = { userExists, registerUser };
+// validate login
+const validateLogin = async (email, password) => {
+  const user = await User.findOne({ email: email }).exec();
+  const validPassword = await bcrypt.compare(password, user.password);
+
+  return validPassword;
+};
+
+module.exports = { userExists, registerUser, validateLogin };

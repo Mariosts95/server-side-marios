@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const { userExists, registerUser } = require('../../database/actions/user');
-const { RegisterSchema } = require('../../helpers/user');
+const { userExists, registerUser, validateLogin } = require('../../database/actions/user');
+const { RegisterSchema, LoginSchema } = require('../../helpers/user');
 
 router.post('/register', (req, res) => {
   // get the credentials from the form
@@ -34,6 +34,36 @@ router.post('/register', (req, res) => {
     .catch((error) => {
       res.status(400).send(error);
     });
+});
+
+router.post('/login', async (req, res) => {
+  // get the credentials from the form
+  const { email, password } = req.body;
+  try {
+    // if there is an error we get it with deconstruction from the body
+    const { error } = await LoginSchema.validateAsync(req.body);
+    if (error) {
+      return res.status(400).send(error);
+    } else {
+      // check if the user exists
+      userExists(email).then((data) => {
+        if (!data) {
+          res.status(400).send('User does not exist!');
+        } else {
+          // check if the passwords match
+          validateLogin(email, password).then((data) => {
+            if (!data) {
+              res.status(400).send('Incorrect password');
+            } else {
+              res.status(200).send('Login successfull');
+            }
+          });
+        }
+      });
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 module.exports = router;
