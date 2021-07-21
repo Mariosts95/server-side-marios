@@ -1,39 +1,30 @@
 const router = require('express').Router();
-const { userExists, registerUser, validateLogin } = require('../../database/actions/user');
+const { userExists, registerUser, validateLogin, createToken } = require('../../database/actions/user');
 const { RegisterSchema, LoginSchema } = require('../../helpers/user');
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   // get the credentials from the form
   const { firstName, lastName, email, password } = req.body;
-  // check if the user exists
-  userExists(email)
-    .then(async (data) => {
-      if (data) {
-        return res.status(200).send('User already exists!');
-      } else {
-        try {
-          // if there is an error we get it with deconstruction from the body
-          const { error } = await RegisterSchema.validateAsync(req.body);
-          if (error) {
-            return res.status(400).send(error);
-          } else {
-            // if there is not an error we save the user to the db
-            registerUser(firstName, lastName, email, password)
-              .then((data) => {
-                res.status(200).send(data);
-              })
-              .catch((error) => {
-                res.status(400).send(error);
-              });
-          }
-        } catch (error) {
-          res.status(400).send(error.message);
-        }
-      }
-    })
-    .catch((error) => {
-      res.status(400).send(error);
-    });
+  try {
+    // check if the user exists
+    if (await userExists(email)) return res.status(200).send('User already exists!');
+    // if there is an error we get it with deconstruction from the body
+    const { error } = await RegisterSchema.validateAsync(req.body);
+    if (error) {
+      return res.status(400).send(error);
+    } else {
+      // if there is not an error we save the user to the db
+      registerUser(firstName, lastName, email, password)
+        .then((data) => {
+          res.status(200).send(data);
+        })
+        .catch((error) => {
+          res.status(400).send(error);
+        });
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 router.post('/login', async (req, res) => {
@@ -52,10 +43,12 @@ router.post('/login', async (req, res) => {
         } else {
           // check if the passwords match
           validateLogin(email, password).then((data) => {
-            if (!data) {
+            if (!data.validPassword) {
               res.status(400).send('Incorrect password');
             } else {
-              res.status(200).send('Login successfull');
+              createToken(email).then((token) => {
+                res.header('auth-token', token).send(token);
+              });
             }
           });
         }
