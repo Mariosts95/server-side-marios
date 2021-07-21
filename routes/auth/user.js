@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const { userExists, registerUser, validateLogin, createToken } = require('../../database/actions/user');
-const { RegisterSchema, LoginSchema } = require('../../helpers/user');
+const { userExists, registerUser, validateLogin } = require('../../database/actions/user');
+const { RegisterSchema, LoginSchema, createToken } = require('../../helpers/user');
 
 router.post('/register', async (req, res) => {
   // get the credentials from the form
