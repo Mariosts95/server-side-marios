@@ -1,6 +1,5 @@
 const { User } = require('../models/user');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 // check if the user already exists (by email)
 const userExists = async (email) => {
@@ -36,10 +35,4 @@ const validateLogin = async (email, password) => {
   return { user, validPassword };
 };
 
-// create the token for the login
-const createToken = async (user) => {
-  const token = await jwt.sign({ _id: user.id }, process.env.SECRET_TOKEN);
-  return token;
-};
-
-module.exports = { userExists, registerUser, validateLogin, createToken };
+module.exports = { userExists, registerUser, validateLogin };

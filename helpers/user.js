@@ -1,5 +1,6 @@
 // validation module joi
 const joi = require('joi');
+const jwt = require('jsonwebtoken');
 
 // Register validation schema using joi
 const RegisterSchema = joi.object({
@@ -16,4 +17,10 @@ const LoginSchema = joi.object({
   password: joi.string().min(8).required().trim(),
 });
 
-module.exports = { RegisterSchema, LoginSchema };
+// create the token for the login
+const createToken = async (user) => {
+  const token = await jwt.sign({ _id: user.id }, process.env.SECRET_TOKEN);
+  return token;
+};
+
+module.exports = { RegisterSchema, LoginSchema, createToken };
