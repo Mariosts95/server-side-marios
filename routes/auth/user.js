@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { userExists, registerUser, validateLogin } = require('../../database/actions/user');
 const { RegisterSchema, LoginSchema, createToken } = require('../../helpers/user');
+const { sendEmail } = require('../../services/email');
 
 router.post('/register', async (req, res) => {
   // get the credentials from the form
@@ -16,6 +17,7 @@ router.post('/register', async (req, res) => {
       // if there is not an error we save the user to the db
       registerUser(firstName, lastName, email, password)
         .then((data) => {
+          sendEmail(email, firstName, 'https://www.google.gr/');
           res.status(200).send(data);
         })
         .catch((error) => {
