@@ -19,7 +19,6 @@ router.post('/register', async (req, res) => {
       // if there is not an error we save the user to the db
       registerUser(user)
         .then((data) => {
-          console.log(data.user);
           sendEmail(data.user, req.get('origin'));
           res.status(200).send(data.message);
         })
@@ -33,14 +32,18 @@ router.post('/register', async (req, res) => {
 });
 
 // verify user path
-// TEST
 router.post('/verify-email', async (req, res) => {
+  // get the token send in the mail
   const { token } = req.body;
-  console.log(req.get('host'));
-  console.log(token);
-  const user = await User.find({ verificationToken: token }).exec();
-  console.log(user);
-  res.status(200).header('verify-email', token).send(token);
+  try {
+    // find the user and update the status to Verified with the date of the verification
+    const user = await User.findOne({ verificationToken: token }).exec();
+    user.verified = await new Date();
+    await user.save();
+    res.status(200).send('Verification successful, you can now login');
+  } catch (error) {
+    res.status(400).send('Verification failed');
+  }
 });
 
 // login path
@@ -60,7 +63,7 @@ router.post('/login', async (req, res) => {
         } else {
           // check if the passwords match
           validateLogin(user.email, user.password).then((data) => {
-            if (!data.validPassword) {
+            if (!data.validPassword || !data.verified) {
               res.status(400).send('Incorrect password');
             } else {
               createToken(user.email).then((token) => {
