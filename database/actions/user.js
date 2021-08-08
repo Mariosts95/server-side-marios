@@ -33,8 +33,8 @@ const registerUser = async (account) => {
 const validateLogin = async (email, password) => {
   const user = await User.findOne({ email: email }).exec();
   const validPassword = await bcrypt.compare(password, user.password);
-
-  return { user, validPassword };
+  const verified = user.verified;
+  return { user, validPassword, verified };
 };
 
 // validation token
