@@ -21,7 +21,6 @@ const registerUser = async (account) => {
     email: account.email,
     password: hashedPassword,
     verificationToken: await validationToken(),
-    verified: new Date(),
   });
 
   // save the user to database

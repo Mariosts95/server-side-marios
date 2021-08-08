@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const { userExists, registerUser, validateLogin } = require('../../database/actions/user');
+const { User } = require('../../database/models/user');
 const { RegisterSchema, LoginSchema, createToken } = require('../../helpers/user');
 const { sendEmail } = require('../../services/email');
 
+// register user path
 router.post('/register', async (req, res) => {
   // get the credentials from the form
   const user = req.body;
@@ -30,6 +32,18 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// verify user path
+// TEST
+router.post('/verify-email', async (req, res) => {
+  const { token } = req.body;
+  console.log(req.get('host'));
+  console.log(token);
+  const user = await User.find({ verificationToken: token }).exec();
+  console.log(user);
+  res.status(200).header('verify-email', token).send(token);
+});
+
+// login path
 router.post('/login', async (req, res) => {
   // get the credentials from the form
   const user = req.body;

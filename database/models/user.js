@@ -7,7 +7,7 @@ const UserSchema = mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   verificationToken: { type: String },
-  verified: { type: String },
+  verified: { type: Date },
 });
 
 UserSchema.index({ email: 1 });
