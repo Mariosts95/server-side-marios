@@ -8,6 +8,11 @@ const { insertTerms, getCount } = require('./database/actions/terms');
 const { getTermsFromApi } = require('./services/terms');
 const { filterTerms } = require('./helpers/terms');
 
+const helmet = require('helmet');
+const compression = require('compression');
+
+app.use(helmet());
+app.use(compression());
 app.use(cors());
 // use express.json to parse json data from the body
 app.use(express.json());
@@ -38,6 +43,6 @@ getCount()
     console.log(error);
   });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Example app listening on port ${process.env.PORT}!`);
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Example app listening on port ${process.env.PORT || 3000}!`);
 });
