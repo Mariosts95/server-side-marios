@@ -29,6 +29,14 @@ const registerUser = async (account) => {
   return { user, message };
 };
 
+const resetPassword = async (newPassword) => {
+  // hashing the password
+  const salt = await bcrypt.genSalt(8);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+  return hashedPassword;
+};
+
 // validate login
 const validateLogin = async (email, password) => {
   const user = await User.findOne({ email: email }).exec();
@@ -42,4 +50,4 @@ const validationToken = () => {
   return crypto.randomBytes(32).toString('hex');
 };
 
-module.exports = { userExists, registerUser, validateLogin, validationToken };
+module.exports = { userExists, registerUser, validateLogin, validationToken, resetPassword };

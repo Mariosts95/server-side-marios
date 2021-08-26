@@ -24,10 +24,22 @@ const sendResetEmail = async (user, origin) => {
     html: `<h1>Hello, ${user.firstName} </h1>
         <p>You have requested to reset your password. We cannot simply send you your old password. 
         A unique link to reset your password has been generated for you. To reset your password, 
-        click the following link:</p> <a href="${resetUrl}">Verify your email</a>`,
+        click the following link:</p> <a href="${resetUrl}">Reset your password</a>`,
   };
   const transporter = nodemailer.createTransport(emailConfig);
   await transporter.sendMail(mailOptions);
 };
 
-module.exports = { sendVerifyEmail, sendResetEmail };
+const sendResetSuccessEmail = async (user, origin) => {
+  const mailOptions = {
+    from: 'info@node-mongo-signup-verification-api.com',
+    to: user.email,
+    subject: 'Reset password successfully',
+    html: `<h1>Hello, ${user.firstName} </h1>
+        <p>Your password changed successfully. You can now login:</p> <a href="${origin}">Pharma React</a>`,
+  };
+  const transporter = nodemailer.createTransport(emailConfig);
+  await transporter.sendMail(mailOptions);
+};
+
+module.exports = { sendVerifyEmail, sendResetEmail, sendResetSuccessEmail };

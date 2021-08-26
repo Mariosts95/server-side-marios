@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const { userExists, registerUser, validateLogin } = require('../../database/actions/user');
+const { userExists, registerUser, validateLogin, resetPassword } = require('../../database/actions/user');
 const { User } = require('../../database/models/user');
-const { RegisterSchema, LoginSchema, createToken } = require('../../helpers/user');
-const { sendVerifyEmail, sendResetEmail } = require('../../services/email');
+const { RegisterSchema, LoginSchema, ResetPasswordSchema, createToken } = require('../../helpers/user');
+const { sendVerifyEmail, sendResetEmail, sendResetSuccessEmail } = require('../../services/email');
 
 // register user path
 router.post('/register', async (req, res) => {
@@ -14,7 +14,7 @@ router.post('/register', async (req, res) => {
     // if there is an error we get it with deconstruction from the body
     const { error } = await RegisterSchema.validateAsync(req.body);
     if (error) {
-      return res.status(400).send(error);
+      return res.status(400).send({ message: error });
     } else {
       // if there is not an error we save the user to the db
       registerUser(user)
@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
         });
     }
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(400).send({ message: error.message });
   }
 });
 
@@ -53,12 +53,38 @@ router.post('/forgot-password', async (req, res) => {
   try {
     // find the user and update the status to Verified with the date of the verification
     const user = await User.findOne({ email: email }).exec();
-    user.resetToken = await createToken(email);
-    await user.save();
-    await sendResetEmail(user, req.get('origin'));
-    await res.status(200).send({ message: 'Please check your email for password reset instructions' });
+    if (!user.verified) {
+      return res.status(400).send({ message: 'User not verified!' });
+    } else {
+      user.resetToken = await createToken(email);
+      await user.save();
+      await sendResetEmail(user, req.get('origin'));
+      await res.status(200).send({ message: 'Please check your email for password reset instructions' });
+    }
   } catch (error) {
     res.status(400).send({ message: "Email doesn't exist, please check your email" });
+  }
+});
+
+// reset password path
+router.post('/reset-password', async (req, res) => {
+  const { token, password, confirmPassword } = req.body;
+  try {
+    // validate the users input
+    const { error } = await ResetPasswordSchema.validateAsync(req.body);
+    if (error) {
+      return res.status(400).send(error);
+    } else {
+      // find the user in database
+      const user = await User.findOne({ resetToken: token }).exec();
+      // check if the user is verified
+      user.password = await resetPassword(password);
+      await user.save();
+      await sendResetSuccessEmail(user, req.get('origin'));
+      await res.status(200).send({ message: 'Password reset successful, you can now login' });
+    }
+  } catch (error) {
+    return res.status(400).send({ message: 'Invalid token' });
   }
 });
 
