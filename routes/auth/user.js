@@ -10,7 +10,7 @@ router.post('/register', async (req, res) => {
   const user = req.body;
   try {
     // check if the user exists
-    if (await userExists(user.email)) return res.status(200).send({ message: 'The email already exists' });
+    if (await userExists(user.email)) return res.status(400).send({ message: 'The email already exists' });
     // if there is an error we get it with deconstruction from the body
     const { error } = await RegisterSchema.validateAsync(req.body);
     if (error) {

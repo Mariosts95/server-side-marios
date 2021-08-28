@@ -1,4 +1,7 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const morgan = require('morgan');
 const app = express();
 const cors = require('cors');
 const routes = require('./routes');
@@ -11,6 +14,26 @@ const { filterTerms } = require('./helpers/terms');
 app.use(cors());
 // use express.json to parse json data from the body
 app.use(express.json());
+
+// error logging using morgan
+
+morgan.token('status', (req, res) => {
+  return res.error.status;
+});
+morgan.token('statusMessage', (req, res) => {
+  return res.error.statusMessage;
+});
+
+const accessLogStream = fs.createWriteStream(path.join(`${__dirname}/logs`, 'error.log'), {
+  flags: 'a',
+});
+
+app.use(
+  morgan(':date - :method - :url - status: :status - error_message: :statusMessage - :res[content-length] - :response-time ms', {
+    stream: accessLogStream,
+  })
+);
+
 app.use(routes);
 
 // check if the db has already the terms stored
@@ -37,6 +60,16 @@ getCount()
   .catch((error) => {
     console.log(error);
   });
+
+// error handling
+app.use((err, req, res, next) => {
+  res.error = err; // we set in the response error property our custom error
+  next(err); // with next() we allow the middleware to proceed to the next available action / middleware (in our case at the error sender middleware)
+});
+// error sender
+app.use((err, req, res, next) => {
+  res.status(err.status).send(err.message);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}!`);
