@@ -71,7 +71,7 @@ app.use((err, req, res, next) => {
 });
 // error sender
 app.use((err, req, res, next) => {
-  res.status(err.status).send({ message: err.statusMessage });
+  res.status(err.status || 500).send({ message: err.statusMessage });
 });
 
 app.listen(process.env.PORT, () => {
