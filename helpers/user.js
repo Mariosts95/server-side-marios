@@ -17,6 +17,11 @@ const LoginSchema = joi.object({
   password: joi.string().min(8).required().trim(),
 });
 
+// Forgot validation schema using joi
+const ForgotPasswordSchema = joi.object({
+  email: joi.string().min(3).required().email().trim(),
+});
+
 // Reset validation schema using joi
 const ResetPasswordSchema = joi.object({
   token: joi.string().required(),
@@ -30,4 +35,4 @@ const createToken = async (user) => {
   return token;
 };
 
-module.exports = { RegisterSchema, LoginSchema, createToken, ResetPasswordSchema };
+module.exports = { RegisterSchema, LoginSchema, createToken, ResetPasswordSchema, ForgotPasswordSchema };

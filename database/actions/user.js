@@ -3,10 +3,10 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 // check if the user already exists (by email)
-const userExists = async (email) => {
+const findUser = async (email) => {
   // Find one user with this email, otherwise `null`
-  const emailExists = await User.findOne({ email: email }).exec();
-  return emailExists;
+  const user = await User.findOne({ email: email }).exec();
+  return user;
 };
 
 const registerUser = async (account) => {
@@ -50,4 +50,4 @@ const validationToken = () => {
   return crypto.randomBytes(32).toString('hex');
 };
 
-module.exports = { userExists, registerUser, validateLogin, validationToken, resetPassword };
+module.exports = { findUser, registerUser, validateLogin, validationToken, resetPassword };

@@ -18,10 +18,10 @@ app.use(express.json());
 // error logging using morgan
 
 morgan.token('status', (req, res) => {
-  return res.error.status;
+  return res?.error?.status || 0;
 });
 morgan.token('statusMessage', (req, res) => {
-  return res.error.statusMessage;
+  return res?.error?.statusMessage || '';
 });
 
 const accessLogStream = fs.createWriteStream(path.join(`${__dirname}/logs`, 'error.log'), {
@@ -31,6 +31,9 @@ const accessLogStream = fs.createWriteStream(path.join(`${__dirname}/logs`, 'err
 app.use(
   morgan(':date - :method - :url - status: :status - error_message: :statusMessage - :res[content-length] - :response-time ms', {
     stream: accessLogStream,
+    skip: (_, res) => {
+      return res?.error?.status < 400 || !res?.error?.status;
+    },
   })
 );
 
@@ -68,7 +71,7 @@ app.use((err, req, res, next) => {
 });
 // error sender
 app.use((err, req, res, next) => {
-  res.status(err.status).send(err.message);
+  res.status(err.status).send({ message: err.statusMessage });
 });
 
 app.listen(process.env.PORT, () => {
