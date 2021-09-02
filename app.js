@@ -1,4 +1,5 @@
 const express = require('express');
+const mongooseMorgan = require('mongoose-morgan');
 const app = express();
 const cors = require('cors');
 const routes = require('./routes');
@@ -16,7 +17,44 @@ app.use(compression());
 app.use(cors());
 // use express.json to parse json data from the body
 app.use(express.json());
+
+// error logging using morgan
+
+mongooseMorgan.token('status', (req, res) => {
+  return res?.statusCode;
+});
+mongooseMorgan.token('statusMessage', (req, res) => {
+  return res?.statusMessage;
+});
+
+app.use(
+  mongooseMorgan(
+    {
+      collection: 'logs',
+      connectionString: process.env.DATABASE_URI,
+    },
+    {
+      skip: (_, res) => {
+        return res?.statusCode < 400;
+      },
+    },
+    ':date - :method - :url - status: :status - error_message: :statusMessage - :res[content-length] - :response-time ms'
+  )
+);
+
 app.use(routes);
+
+// error handling
+app.use((err, req, res, next) => {
+  res.statusCode = err.status;
+  res.statusMessage = err.statusMessage;
+  next(err);
+});
+
+// error sender
+app.use((err, req, res, next) => {
+  res.status(err.status).send({ message: err.statusMessage });
+});
 
 // check if the db has already the terms stored
 getCount()

@@ -13,6 +13,6 @@ const TermSchema = mongoose.Schema({
 TermSchema.index({ key: 1 });
 
 // assign the document in the 'terms' collection in db
-const model = mongoose.model('terms', TermSchema);
+const Term = mongoose.model('terms', TermSchema);
 
-module.exports = model;
+module.exports = Term;
