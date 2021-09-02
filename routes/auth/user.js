@@ -31,17 +31,18 @@ router.post('/register', async (req, res, next) => {
 });
 
 // verify user path
-router.post('/verify-email', async (req, res) => {
+router.post('/verify-email', async (req, res, next) => {
   // get the token send in the mail
   const { token } = req.body;
   try {
     // find the user and update the status to Verified with the date of the verification
     const user = await User.findOne({ verificationToken: token }).exec();
+    if (!user) throw { status: 400, statusMessage: 'Verification failed' };
     user.verified = await new Date();
     await user.save();
     res.status(200).send({ message: 'Verification successful, you can now login' });
   } catch (error) {
-    res.status(400).send({ message: 'Verification failed' });
+    next(error);
   }
 });
 

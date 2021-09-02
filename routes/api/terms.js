@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getTerms, addTerm } = require('../../database/actions/terms');
+const { getTerms, addTerm, updateTerm, deleteTerm } = require('../../database/actions/terms');
 
 router.get('/getTerms', (req, res, next) => {
   const { from, size } = req.query;
@@ -13,12 +13,37 @@ router.get('/getTerms', (req, res, next) => {
     });
 });
 
+// add new term
 router.post('/createTerm', (req, res, next) => {
   const { term } = req.body;
   addTerm(term)
-    .then((data) => {
-      console.log(data);
-      return res.status(200).send(data);
+    .then((newTerm) => {
+      return res.status(200).send(newTerm);
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// edit term
+router.put('/term/:id', (req, res, next) => {
+  const { id } = req.params;
+  const { term } = req.body;
+  updateTerm(id, term)
+    .then((term) => {
+      return res.status(200).send({ term });
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// delete term
+router.delete('/term/:id', (req, res, next) => {
+  const { id } = req.params;
+  deleteTerm(id)
+    .then((term) => {
+      res.status(200).send({ term });
     })
     .catch((error) => {
       next(error);

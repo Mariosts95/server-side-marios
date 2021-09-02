@@ -21,8 +21,21 @@ const addTerm = async (term) => {
   });
   // save the term to database
   await newTerm.save();
-  let message = 'Term saved successfully!';
-  return message;
+  return newTerm;
+};
+
+const updateTerm = async (id, data) => {
+  await Term.findOneAndUpdate({ key: id }, data);
+  let term = await Term.findOne({ key: id }).exec();
+  if (!term) throw { error: 404, statusMessage: 'Undefined term' };
+  return term;
+};
+
+const deleteTerm = async (id) => {
+  let term = await Term.findOne({ key: id }).exec();
+  await Term.findOneAndDelete({ key: id });
+  if (!term) throw { error: 404, statusMessage: 'Undefined term' };
+  return term;
 };
 
 // get the estimated document number in the database
@@ -45,4 +58,4 @@ const getTerms = async (page, size) => {
   return { terms, count };
 };
 
-module.exports = { insertTerms, getCount, getTerms, addTerm };
+module.exports = { insertTerms, getCount, getTerms, addTerm, updateTerm, deleteTerm };

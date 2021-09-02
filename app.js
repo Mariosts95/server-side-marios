@@ -1,7 +1,5 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const morgan = require('morgan');
+const mongooseMorgan = require('mongoose-morgan');
 const app = express();
 const cors = require('cors');
 const routes = require('./routes');
@@ -17,27 +15,41 @@ app.use(express.json());
 
 // error logging using morgan
 
-morgan.token('status', (req, res) => {
-  return res?.error?.status || 0;
+mongooseMorgan.token('status', (req, res) => {
+  return res?.statusCode;
 });
-morgan.token('statusMessage', (req, res) => {
-  return res?.error?.statusMessage || '';
-});
-
-const accessLogStream = fs.createWriteStream(path.join(`${__dirname}/logs`, 'error.log'), {
-  flags: 'a',
+mongooseMorgan.token('statusMessage', (req, res) => {
+  return res?.statusMessage;
 });
 
 app.use(
-  morgan(':date - :method - :url - status: :status - error_message: :statusMessage - :res[content-length] - :response-time ms', {
-    stream: accessLogStream,
-    skip: (_, res) => {
-      return res?.error?.status < 400 || !res?.error?.status;
+  mongooseMorgan(
+    {
+      collection: 'logs',
+      connectionString: process.env.DATABASE_URI,
     },
-  })
+    {
+      skip: (_, res) => {
+        return res?.statusCode < 400;
+      },
+    },
+    ':date - :method - :url - status: :status - error_message: :statusMessage - :res[content-length] - :response-time ms'
+  )
 );
 
 app.use(routes);
+
+// error handling
+app.use((err, req, res, next) => {
+  res.statusCode = err.status;
+  res.statusMessage = err.statusMessage;
+  next(err);
+});
+
+// error sender
+app.use((err, req, res, next) => {
+  res.status(err.status).send({ message: err.statusMessage });
+});
 
 // check if the db has already the terms stored
 getCount()
@@ -63,16 +75,6 @@ getCount()
   .catch((error) => {
     console.log(error);
   });
-
-// error handling
-app.use((err, req, res, next) => {
-  res.error = err; // we set in the response error property our custom error
-  next(err); // with next() we allow the middleware to proceed to the next available action / middleware (in our case at the error sender middleware)
-});
-// error sender
-app.use((err, req, res, next) => {
-  res.status(err.status || 500).send({ message: err.statusMessage });
-});
 
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}!`);
