@@ -2,7 +2,10 @@ const router = require('express').Router();
 const { getTerms, addTerm, updateTerm, deleteTerm } = require('../../database/actions/terms');
 
 router.get('/getTerms', (req, res, next) => {
+  // get the parameters from query
   const { from, size } = req.query;
+
+  // return the terms based on the params
   getTerms(from, size)
     .then((data) => {
       if (!data) throw { status: 400, statusMessage: 'Error on receiving the terms' };

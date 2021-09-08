@@ -93,39 +93,20 @@ router.post('/reset-password', async (req, res, next) => {
 router.post('/login', async (req, res, next) => {
   // get the credentials from the form
   const user = req.body;
-  try {
-    // if there is an error we get it with deconstruction from the body
-    await LoginSchema.validateAsync(req.body).catch((error) => {
-      throw { status: 400, statusMessage: error.details[0].message };
-    });
-    // check if the user exists
-    findUser(user.email)
-      .then((data) => {
-        if (!data) {
-          throw { status: 400, statusMessage: 'Email or password is incorrect' };
-        } else {
-          // check if the passwords match
-          validateLogin(user.email, user.password)
-            .then((data) => {
-              if (!data.validPassword || !data.verified) {
-                throw { status: 400, statusMessage: 'Email or password is incorrect' };
-              } else {
-                createToken(user.email).then((token) => {
-                  return res.header('auth-token', token).send(token);
-                });
-              }
-            })
-            .catch((error) => {
-              next(error);
-            });
-        }
-      })
-      .catch((error) => {
-        next(error);
+  // if there is an error we get it with deconstruction from the body
+  await LoginSchema.validateAsync(req.body).catch((error) => {
+    next({ status: 400, statusMessage: error.details[0].message });
+  });
+  // check if the user exists and if the passwords match
+  validateLogin(user.email, user.password)
+    .then(() => {
+      createToken(user.email).then((token) => {
+        return res.header('auth-token', token).send(token);
       });
-  } catch (error) {
-    next(error);
-  }
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 module.exports = router;

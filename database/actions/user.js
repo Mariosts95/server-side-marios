@@ -40,8 +40,10 @@ const resetPassword = async (newPassword) => {
 // validate login
 const validateLogin = async (email, password) => {
   const user = await User.findOne({ email: email }).exec();
+  if (!user) throw { status: 400, statusMessage: 'Email or password is incorrect' };
   const validPassword = await bcrypt.compare(password, user.password);
   const verified = user.verified;
+  if (!validPassword || !verified) throw { status: 400, statusMessage: 'Email or password is incorrect' };
   return { user, validPassword, verified };
 };
 
